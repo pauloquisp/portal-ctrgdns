@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Asistencia - GP Gedeones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* Header Compacto */
+        .header {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border-left: 6px solid #3b82f6;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);
+        }
+
+        .header-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .header-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .last-update {
+            background: #eff6ff;
+            color: #3b82f6;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .last-update svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-loading {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected { background: #10b981; }
+        .status-dot.disconnected { background: #ef4444; }
+        .status-dot.loading { background: #f59e0b; }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            padding: 6px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .nav-tab:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #e5e7eb;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #1f2937;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        /* Group Rankings */
+        .group-rankings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .group-rank-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #d1d5db;
+            transition: transform 0.2s ease;
+        }
+
+        .group-rank-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .group-rank-card.rank-1 { border-left-color: #fbbf24; }
+        .group-rank-card.rank-2 { border-left-color: #9ca3af; }
+        .group-rank-card.rank-3 { border-left-color: #cd7c0e; }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .group-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .rank-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .rank-badge.rank-1 { background: #fbbf24; }
+        .rank-badge.rank-2 { background: #9ca3af; }
+        .rank-badge.rank-3 { background: #cd7c0e; }
+
+        .group-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        /* Nuevos estilos para subtexto */
+        .stat-subtext {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 3px;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        /* Member Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.85rem;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            padding: 5px 8px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .status-present { background: #d1fae5; color: #065f46; }
+        .status-absent { background: #fee2e2; color: #991b1b; }
+        .status-on-time { background: #dbeafe; color: #1e40af; }
+        .status-late { background: #fef3c7; color: #92400e; }
+
+        .member-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-rank.rank-1 { background: #fbbf24; }
+        .member-rank.rank-2 { background: #9ca3af; }
+        .member-rank.rank-3 { background: #cd7c0e; }
+
+        /* Group Filter */
+        .group-filter {
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .group-filter select {
+            padding: 9px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #374151;
+            background: white;
+            cursor: pointer;
+            min-width: 180px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+
+        .group-filter select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Loading & Error States */
+        .loading-state, .error-state, .no-data-state {
+            text-align: center;
+            padding: 35px 18px;
+            color: #6b7280;
+            border-radius: 10px;
+            margin: 18px 0;
+        }
+
+        .loading-state {
+            font-style: italic;
+            background: #f9fafb;
+            border: 1px dashed #e5e7eb;
+        }
+
+        .error-state {
+            color: #dc2626;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+        }
+
+        .no-data-state {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .header-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .group-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                text-align: center;
+                padding: 12px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #3b82f6;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 18px;
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-top: 35px;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 36px;
+            height: 36px;
+            margin: 18px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #2563eb;
+            transform: rotate(90deg);
+        }
+        
+        /* Nuevos estilos para tooltips y columnas */
+        .header-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted #3b82f6;
+        }
+        
+        .header-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1e293b;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+        
+        .header-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .late-cell {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        
+        .absent-cell {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+        
+        /* Estilos para ordenamiento */
+        .sortable {
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px !important;
+        }
+        
+        .sortable::after {
+            content: "↕";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+        
+        .sortable.asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        .sortable.desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Compacto -->
+        <div class="header">
+            <button class="refresh-btn" onclick="refreshData()" id="refresh-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+            </button>
+            
+            <div class="header-content">
+                <h1>GP. GEDEONES</h1>
+                <p>Portal de Asistencia y Puntualidad</p>
+                
+                <div class="header-info">
+                    <div class="last-update">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z"/>
+                        </svg>
+                        <span id="update-time">Cargando datos...</span>
+                    </div>
+                    
+                    <div class="connection-status" id="connection-status">
+                        <div class="status-dot loading" id="status-dot"></div>
+                        <span id="status-text">Conectando a Google Sheets...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('overview')" disabled>Resumen</button>
+            <button class="nav-tab" onclick="showSection('groups')" disabled>Ranking Grupos</button>
+            <button class="nav-tab" onclick="showSection('members')" disabled>Miembros</button>
+            <button class="nav-tab" onclick="showSection('individual')" disabled>Ranking Individual</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview-section" class="content-section active">
+            <div id="overview-loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando datos de asistencia...</p>
+            </div>
+
+            <div id="overview-content" style="display: none;">
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-number" id="total-registered">0</div>
+                        <div class="summary-label">Registrados</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-number" id="total-present">0</div>
+                        <div class="summary-label">Asistencias</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-number" id="attendance-rate">0%</div>
+                        <div class="summary-label">% Asistencia</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-number" id="punctuality-rate">0%</div>
+                        <div class="summary-label">% Puntualidad</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🏆 Top 3 Grupos - Puntualidad</h2>
+                    <p style="color: #6b7280; font-size: 0.8rem; margin-bottom: 15px;">
+                        Criterios: % Puntualidad → % Asistencia → ⏰ Promedio llegada
+                    </p>
+                    <div class="group-rankings" id="top-punctuality-groups">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 Top 3 Grupos - Asistencia</h2>
+                    <p style="color: #6b7280; font-size: 0.8rem; margin-bottom: 15px;">
+                        Criterios: % Asistencia → Total asistencias → ⏰ Promedio llegada
+                    </p>
+                    <div class="group-rankings" id="top-attendance-groups">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Groups Section -->
+        <div id="groups-section" class="content-section">
+            <div class="card">
+                <h2>🏆 Ranking General de Grupos</h2>
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 15px;">
+                    Ordenado por: % Puntualidad → % Asistencia → Total Asistencias → ⏰ Promedio de llegada
+                </p>
+                <div class="table-container">
+                    <table id="groups-table">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Grupo</th>
+                                <th>% Puntualidad</th>
+                                <th>Puntuales</th>
+                                <th>
+                                    <span class="header-tooltip">
+                                        Tardíos
+                                        <span class="tooltip-text">Asistencias fuera de hora (después de las 08:00)</span>
+                                    </span>
+                                </th>
+                                <th>% Asistencia</th>
+                                <th>Miembros</th>
+                                <th>Asistencias</th>
+                                <th>
+                                    <span class="header-tooltip">
+                                        Faltantes
+                                        <span class="tooltip-text">Miembros que no asistieron</span>
+                                    </span>
+                                </th>
+                                <th>⏰ Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="10" class="loading-state">
+                                    <div class="spinner"></div>
+                                    <p>Cargando ranking de grupos...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <div id="members-section" class="content-section">
+            <div class="card">
+                <h2>👥 Miembros por Grupo</h2>
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 10px;">
+                    El ⏰ promedio de llegada es clave en todos los rankings
+                </p>
+                <div class="group-filter">
+                    <label for="group-select">Seleccionar Grupo: </label>
+                    <select id="group-select" onchange="filterByGroup()" disabled>
+                        <option value="all">Todos los Grupos</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table id="members-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Grupo</th>
+                                <th>Estado</th>
+                                <th>Asistencias</th>
+                                <th>Última Asist.</th>
+                                <th>⏰ Hora Llegada</th>
+                                <th>Puntualidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" class="loading-state">
+                                    <div class="spinner"></div>
+                                    <p>Cargando datos de miembros...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Ranking Section -->
+        <div id="individual-section" class="content-section">
+            <div class="card">
+                <h2>🏆 Ranking Individual - Los Más Puntuales</h2>
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 15px;">
+                    Ordenado por: % Puntualidad → Total asistencias → ⏰ Promedio llegada
+                </p>
+                <div class="table-container">
+                    <table id="individual-table">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Nombre</th>
+                                <th>Grupo</th>
+                                <th>% Puntualidad</th>
+                                <th>⏰ Promedio</th>
+                                <th>Asistencias</th>
+                                <th>Puntuales</th>
+                                <th>Racha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="loading-state">
+                                    <div class="spinner"></div>
+                                    <p>Cargando ranking individual...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Sistema de Asistencia GP Gedeones &copy; ${new Date().getFullYear()} | Actualizado automáticamente
+        </div>
+    </div>
+
+    <script>
+        // ============== CONFIGURACIÓN PREESTABLECIDA ==============
+        // REEMPLAZA ESTOS VALORES CON TU API KEY Y SHEET ID REALES
+        const PRE_CONFIGURED_API_KEY = 'AIzaSyABK0TbZ8WkUTcp4W5ScvvCVcOb0UlBMZQ';
+        const PRE_CONFIGURED_SPREADSHEET_ID = '1Wss0Fv2A-pfCVQnwasfT_Tcsqz7KRpfI6D_fsiAtK5Q';
+        const PRE_CONFIGURED_ASISTENTES_RANGE = 'Asistentes!A:D';
+        const PRE_CONFIGURED_ESCANEO_RANGE = 'Escaneo!A:F';
+        
+        // Variables globales
+        let asistenciaData = [];
+        let escaneoData = [];
+        let isConnected = false;
+        let isDataLoaded = false;
+        const PROGRAM_START_TIME = '08:00';
+
+        // Configuración para Google Sheets
+        let sheetsConfig = {
+            apiKey: PRE_CONFIGURED_API_KEY,
+            spreadsheetId: PRE_CONFIGURED_SPREADSHEET_ID,
+            asistentesRange: PRE_CONFIGURED_ASISTENTES_RANGE,
+            escaneoRange: PRE_CONFIGURED_ESCANEO_RANGE
+        };
+
+        // ============== FUNCIONES DE CONEXIÓN ==============
+        async function connectToSheets() {
+            if (!sheetsConfig.apiKey || !sheetsConfig.spreadsheetId) {
+                updateConnectionStatus('disconnected', 'Error: Faltan API Key o Spreadsheet ID');
+                return;
+            }
+
+            updateConnectionStatus('loading', 'Conectando a Google Sheets...');
+            disableControls();
+            
+            try {
+                // Probar conexión
+                const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetsConfig.spreadsheetId}?key=${sheetsConfig.apiKey}`;
+                const response = await fetch(testUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                updateConnectionStatus('connected', `Conectado: ${data.properties.title}`);
+                isConnected = true;
+                
+                // Cargar datos
+                await loadSheetsData();
+                
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                updateConnectionStatus('disconnected', `Error: ${error.message}`);
+                document.getElementById('overview-loading').innerHTML = `
+                    <div class="error-state">
+                        <h3>Error al cargar los datos</h3>
+                        <p>${error.message}</p>
+                        <p>Por favor verifica la configuración del sistema.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadSheetsData() {
+            if (!isConnected || !sheetsConfig.apiKey || !sheetsConfig.spreadsheetId) return;
+            
+            updateConnectionStatus('loading', 'Cargando datos...');
+            
+            try {
+                const [asistentesResponse, escaneoResponse] = await Promise.all([
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetsConfig.spreadsheetId}/values/${sheetsConfig.asistentesRange}?key=${sheetsConfig.apiKey}`),
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetsConfig.spreadsheetId}/values/${sheetsConfig.escaneoRange}?key=${sheetsConfig.apiKey}`)
+                ]);
+                
+                if (!asistentesResponse.ok) {
+                    throw new Error(`Error cargando asistentes: ${asistentesResponse.statusText}`);
+                }
+                
+                if (!escaneoResponse.ok) {
+                    throw new Error(`Error cargando escaneo: ${escaneoResponse.statusText}`);
+                }
+                
+                const asistentesResult = await asistentesResponse.json();
+                const escaneoResult = await escaneoResponse.json();
+                
+                asistenciaData = sheetsToObjects(asistentesResult.values || []);
+                escaneoData = sheetsToObjects(escaneoResult.values || []);
+                
+                isDataLoaded = true;
+                enableAllControls();
+                loadAllSections();
+                
+                const now = new Date();
+                updateConnectionStatus('connected', `Actualizado: ${now.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}`);
+                document.getElementById('update-time').textContent = now.toLocaleString('es-ES', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+                
+                // Ocultar spinner y mostrar contenido
+                document.getElementById('overview-loading').style.display = 'none';
+                document.getElementById('overview-content').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                updateConnectionStatus('connected', `Error: ${error.message}`);
+                document.getElementById('overview-loading').innerHTML = `
+                    <div class="error-state">
+                        <h3>Error al cargar datos</h3>
+                        <p>${error.message}</p>
+                        <button class="btn btn-primary" onclick="refreshData()" style="margin-top: 15px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function sheetsToObjects(values) {
+            if (!values || values.length === 0) return [];
+            
+            const headers = values[0];
+            const objects = [];
+            
+            for (let i = 1; i < values.length; i++) {
+                const row = values[i];
+                const obj = {};
+                
+                headers.forEach((header, index) => {
+                    obj[header] = row[index] || '';
+                });
+                
+                objects.push(obj);
+            }
+            
+            return objects;
+        }
+
+        async function refreshData() {
+            if (!isConnected) return;
+            updateConnectionStatus('loading', 'Actualizando datos...');
+            await loadSheetsData();
+        }
+
+        // ============== FUNCIONES DE CONTROL DE ESTADO ==============
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connection-status');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            statusElement.className = `connection-status status-${status}`;
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = message;
+        }
+
+        function disableControls() {
+            document.getElementById('refresh-btn').disabled = true;
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.disabled = true;
+            });
+        }
+
+        function enableAllControls() {
+            document.getElementById('refresh-btn').disabled = false;
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.disabled = false;
+            });
+            
+            document.getElementById('group-select').disabled = false;
+        }
+
+        // ============== FUNCIONES UTILITARIAS ==============
+        function isOnTime(dateString) {
+            try {
+                let date;
+                
+                if (dateString.includes('/')) {
+                    const parts = dateString.split(' ');
+                    const dateParts = parts[0].split('/');
+                    const timePart = parts[1] || '00:00:00';
+                    
+                    if (dateParts.length === 3) {
+                        date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                        
+                        if (timePart) {
+                            const timeParts = timePart.split(':');
+                            date.setHours(parseInt(timeParts[0]) || 0);
+                            date.setMinutes(parseInt(timeParts[1]) || 0);
+                            date.setSeconds(parseInt(timeParts[2]) || 0);
+                        }
+                    }
+                } else {
+                    date = new Date(dateString);
+                }
+
+                if (isNaN(date.getTime())) {
+                    return false;
+                }
+
+                const arrivalHour = date.getHours();
+                const arrivalMinute = date.getMinutes();
+                const arrivalTimeInMinutes = arrivalHour * 60 + arrivalMinute;
+                
+                const [startHour, startMinute] = PROGRAM_START_TIME.split(':').map(Number);
+                const startTimeInMinutes = startHour * 60 + startMinute;
+
+                return arrivalTimeInMinutes <= startTimeInMinutes;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function formatTime(dateString) {
+            try {
+                let date;
+                
+                if (dateString.includes('/')) {
+                    const parts = dateString.split(' ');
+                    const dateParts = parts[0].split('/');
+                    const timePart = parts[1] || '00:00:00';
+                    
+                    if (dateParts.length === 3) {
+                        date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                        
+                        if (timePart) {
+                            const timeParts = timePart.split(':');
+                            date.setHours(parseInt(timeParts[0]) || 0);
+                            date.setMinutes(parseInt(timeParts[1]) || 0);
+                        }
+                    }
+                } else {
+                    date = new Date(dateString);
+                }
+
+                if (isNaN(date.getTime())) {
+                    return '--:--';
+                }
+
+                return date.toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            } catch (error) {
+                return '--:--';
+            }
+        }
+
+        function formatDate(dateString) {
+            try {
+                let date;
+                
+                if (dateString.includes('/')) {
+                    const parts = dateString.split(' ');
+                    const dateParts = parts[0].split('/');
+                    
+                    if (dateParts.length === 3) {
+                        date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                    }
+                } else {
+                    date = new Date(dateString);
+                }
+
+                if (isNaN(date.getTime())) {
+                    return 'Fecha inválida';
+                }
+
+                return date.toLocaleDateString('es-ES', { 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        // ============== FUNCIONES DE NAVEGACIÓN ==============
+        function showSection(sectionName) {
+            if (!isDataLoaded) return;
+            
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Ocultar todos los tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Activar el tab correspondiente
+            event.target.classList.add('active');
+
+            // Cargar datos si es necesario
+            if (sectionName === 'overview') {
+                loadOverviewData();
+            } else if (sectionName === 'groups') {
+                loadGroupsData();
+            } else if (sectionName === 'members') {
+                loadMembersData();
+            } else if (sectionName === 'individual') {
+                loadIndividualData();
+            }
+        }
+
+        function loadAllSections() {
+            // Mostrar contenido
+            loadOverviewData();
+            loadGroupsData();
+            loadMembersData();
+            loadIndividualData();
+        }
+
+        // ============== FUNCIONES DE CARGA DE DATOS ==============
+        function loadOverviewData() {
+            if (!isDataLoaded) return;
+            
+            const totalRegistered = asistenciaData.length;
+            const totalScans = escaneoData.length;
+            const averageAttendance = totalRegistered > 0 ? ((totalScans / totalRegistered) * 100).toFixed(1) : 0;
+            
+            let punctualCount = 0;
+            escaneoData.forEach(scan => {
+                const fecha = scan.Fecha || scan.fecha || scan.Date || scan.date || scan.Timestamp || scan.timestamp;
+                if (fecha && isOnTime(fecha)) {
+                    punctualCount++;
+                }
+            });
+            
+            const punctualityRate = totalScans > 0 ? ((punctualCount / totalScans) * 100).toFixed(1) : 0;
+
+            document.getElementById('total-registered').textContent = totalRegistered;
+            document.getElementById('total-present').textContent = totalScans;
+            document.getElementById('attendance-rate').textContent = averageAttendance + '%';
+            document.getElementById('punctuality-rate').textContent = punctualityRate + '%';
+
+            // Cargar top grupos
+            loadTopGroups();
+        }
+
+        function loadTopGroups() {
+            const groupStats = calculateGroupStats();
+            
+            // Obtener grupos ordenados para puntualidad (mismos criterios que ranking principal)
+            const sortedByPunctuality = getSortedGroupsForPunctuality(groupStats);
+            
+            // Obtener grupos ordenados para asistencia (criterios específicos)
+            const sortedByAttendance = [...groupStats].sort((a, b) => {
+                // 1° % Asistencia (mayor es mejor)
+                if (b.attendancePercentage !== a.attendancePercentage) {
+                    return b.attendancePercentage - a.attendancePercentage;
+                }
+                
+                // 2° Total de asistencias (mayor es mejor)
+                if (b.totalAttendances !== a.totalAttendances) {
+                    return b.totalAttendances - a.totalAttendances;
+                }
+                
+                // 3° ⏰ Promedio de llegada
+                if (a.averageArrival !== '--:--' && b.averageArrival !== '--:--') {
+                    const timeA = a.averageArrival.split(':').map(Number);
+                    const timeB = b.averageArrival.split(':').map(Number);
+                    const minutesA = timeA[0] * 60 + timeA[1];
+                    const minutesB = timeB[0] * 60 + timeB[1];
+                    return minutesA - minutesB;
+                }
+                
+                return 0;
+            });
+
+            // Top 3 por puntualidad (mismos criterios que ranking principal)
+            const topPunctualityContainer = document.getElementById('top-punctuality-groups');
+            topPunctualityContainer.innerHTML = '';
+            
+            sortedByPunctuality.slice(0, 3).forEach((group, index) => {
+                const card = document.createElement('div');
+                card.className = `group-rank-card rank-${index + 1}`;
+                card.innerHTML = `
+                    <div class="group-header">
+                        <div class="group-name">${group.name}</div>
+                        <div class="rank-badge rank-${index + 1}">#${index + 1}</div>
+                    </div>
+                    <div class="group-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #10b981;">${group.punctualityPercentage}%</div>
+                            <div class="stat-label">Puntualidad</div>
+                            <div class="stat-subtext">${group.punctualCount}/${group.totalAttendances} asistencias</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #3b82f6;">${group.attendancePercentage}%</div>
+                            <div class="stat-label">Asistencia</div>
+                            <div class="stat-subtext">${group.attendanceCount}/${group.totalMembers} miembros</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #f59e0b; font-weight: 700;">${group.averageArrival}</div>
+                            <div class="stat-label">⏰ Promedio</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${group.absentCount}</div>
+                            <div class="stat-label">Faltantes</div>
+                        </div>
+                    </div>
+                `;
+                topPunctualityContainer.appendChild(card);
+            });
+
+            // Top 3 por asistencia (criterios específicos)
+            const topAttendanceContainer = document.getElementById('top-attendance-groups');
+            topAttendanceContainer.innerHTML = '';
+            
+            sortedByAttendance.slice(0, 3).forEach((group, index) => {
+                const card = document.createElement('div');
+                card.className = `group-rank-card rank-${index + 1}`;
+                card.innerHTML = `
+                    <div class="group-header">
+                        <div class="group-name">${group.name}</div>
+                        <div class="rank-badge rank-${index + 1}">#${index + 1}</div>
+                    </div>
+                    <div class="group-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #3b82f6;">${group.attendancePercentage}%</div>
+                            <div class="stat-label">Asistencia</div>
+                            <div class="stat-subtext">${group.attendanceCount}/${group.totalMembers} miembros</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${group.totalAttendances}</div>
+                            <div class="stat-label">Asistencias</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #f59e0b; font-weight: 700;">${group.averageArrival}</div>
+                            <div class="stat-label">⏰ Promedio</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${group.absentCount}</div>
+                            <div class="stat-label">Faltantes</div>
+                        </div>
+                    </div>
+                `;
+                topAttendanceContainer.appendChild(card);
+            });
+        }
+
+        // Función compartida para ordenamiento de grupos (usada en Resumen y Ranking)
+        function getSortedGroupsForPunctuality(groups) {
+            return [...groups].sort((a, b) => {
+                // 1° % Puntualidad (mayor es mejor)
+                if (b.punctualityPercentage !== a.punctualityPercentage) {
+                    return b.punctualityPercentage - a.punctualityPercentage;
+                }
+                
+                // 2° % Asistencia (mayor es mejor)
+                if (b.attendancePercentage !== a.attendancePercentage) {
+                    return b.attendancePercentage - a.attendancePercentage;
+                }
+                
+                // 3° Total de asistencias (mayor es mejor) - NUEVO CRITERIO
+                if (b.totalAttendances !== a.totalAttendances) {
+                    return b.totalAttendances - a.totalAttendances;
+                }
+                
+                // 4° ⏰ Promedio de llegada (menor tiempo es mejor)
+                if (a.averageArrival !== '--:--' && b.averageArrival !== '--:--') {
+                    const timeA = a.averageArrival.split(':').map(Number);
+                    const timeB = b.averageArrival.split(':').map(Number);
+                    const minutesA = timeA[0] * 60 + timeA[1];
+                    const minutesB = timeB[0] * 60 + timeB[1];
+                    return minutesA - minutesB;
+                }
+                
+                // 5° Desempate por nombre (orden alfabético)
+                return a.name.localeCompare(b.name);
+            });
+        }
+
+        function calculateGroupStats() {
+            if (!isDataLoaded) return [];
+            
+            const groups = {};
+            
+            // Inicializar grupos
+            asistenciaData.forEach(person => {
+                const grupo = person.Grupo || person.Group || person.grupo || 'SIN_GRUPO';
+                if (!groups[grupo]) {
+                    groups[grupo] = {
+                        name: grupo,
+                        totalMembers: 0,
+                        totalAttendances: 0,
+                        punctualCount: 0,
+                        lateCount: 0,
+                        attendancePercentage: 0,
+                        punctualityPercentage: 0,
+                        averageArrival: '--:--',
+                        totalMinutes: 0,
+                        validTimes: 0,
+                        absentCount: 0,
+                        attendanceCount: 0
+                    };
+                }
+                groups[grupo].totalMembers++;
+            });
+
+            // Procesar asistencias
+            escaneoData.forEach(scan => {
+                const qrCode = scan.QR_Code || scan['QR Code'] || scan.QRCode || scan.qr_code;
+                const fecha = scan.Fecha || scan.fecha || scan.Date || scan.date || scan.Timestamp || scan.timestamp;
+                
+                const person = asistenciaData.find(p => {
+                    const personQR = p.QR_Code || p['QR Code'] || p.QRCode || p.qr_code;
+                    return personQR === qrCode;
+                });
+                
+                if (person) {
+                    const grupo = person.Grupo || person.Group || person.grupo || 'SIN_GRUPO';
+                    if (groups[grupo]) {
+                        groups[grupo].totalAttendances++;
+                        
+                        if (fecha && isOnTime(fecha)) {
+                            groups[grupo].punctualCount++;
+                        } else {
+                            groups[grupo].lateCount++;
+                        }
+
+                        // Calcular tiempo promedio
+                        if (fecha) {
+                            try {
+                                let date;
+                                if (fecha.includes('/')) {
+                                    const parts = fecha.split(' ');
+                                    const dateParts = parts[0].split('/');
+                                    const timePart = parts[1] || '00:00:00';
+                                    
+                                    if (dateParts.length === 3) {
+                                        date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                                        
+                                        if (timePart) {
+                                            const timeParts = timePart.split(':');
+                                            date.setHours(parseInt(timeParts[0]) || 0);
+                                            date.setMinutes(parseInt(timeParts[1]) || 0);
+                                        }
+                                    }
+                                }
+
+                                if (date && !isNaN(date.getTime())) {
+                                    const arrivalMinutes = date.getHours() * 60 + date.getMinutes();
+                                    groups[grupo].totalMinutes += arrivalMinutes;
+                                    groups[grupo].validTimes++;
+                                }
+                            } catch (error) {
+                                // Ignorar errores
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Calcular porcentajes y promedios
+            Object.keys(groups).forEach(groupName => {
+                const group = groups[groupName];
+                
+                // Porcentaje de asistencia basado en miembros únicos que asistieron
+                const uniqueAttendees = new Set();
+                escaneoData.forEach(scan => {
+                    const qrCode = scan.QR_Code || scan['QR Code'] || scan.QRCode || scan.qr_code;
+                    const person = asistenciaData.find(p => {
+                        const personQR = p.QR_Code || p['QR Code'] || p.QRCode || p.qr_code;
+                        return personQR === qrCode;
+                    });
+                    
+                    if (person) {
+                        const grupo = person.Grupo || person.Group || person.grupo || 'SIN_GRUPO';
+                        if (grupo === groupName) {
+                            uniqueAttendees.add(qrCode);
+                        }
+                    }
+                });
+                
+                group.attendanceCount = uniqueAttendees.size;
+                group.attendancePercentage = group.totalMembers > 0 ? 
+                    Math.round((group.attendanceCount / group.totalMembers) * 100) : 0;
+                
+                group.punctualityPercentage = group.totalAttendances > 0 ? 
+                    Math.round((group.punctualCount / group.totalAttendances) * 100) : 0;
+
+                // Calcular tiempo promedio de llegada
+                if (group.validTimes > 0) {
+                    const avgMinutes = Math.round(group.totalMinutes / group.validTimes);
+                    const avgHour = Math.floor(avgMinutes / 60);
+                    const avgMin = avgMinutes % 60;
+                    group.averageArrival = `${avgHour.toString().padStart(2, '0')}:${avgMin.toString().padStart(2, '0')}`;
+                }
+                
+                // Calcular faltantes
+                group.absentCount = group.totalMembers - group.attendanceCount;
+            });
+
+            return Object.values(groups);
+        }
+
+        function loadGroupsData() {
+            if (!isDataLoaded) return;
+            
+            const groupStats = calculateGroupStats();
+            const sortedGroups = getSortedGroupsForPunctuality(groupStats);
+            
+            const tbody = document.querySelector('#groups-table tbody');
+            tbody.innerHTML = '';
+
+            if (sortedGroups.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="10" class="no-data-state">No hay datos de grupos disponibles</td>';
+                tbody.appendChild(row);
+                return;
+            }
+
+            sortedGroups.forEach((group, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="member-rank rank-${Math.min(index + 1, 3)}">${index + 1}</div>
+                    </td>
+                    <td><strong>${group.name}</strong></td>
+                    <td><strong style="color: #059669; font-size: 1.1rem;">${group.punctualityPercentage}%</strong></td>
+                    <td>${group.punctualCount}</td>
+                    <td class="late-cell">${group.lateCount}</td>
+                    <td><strong>${group.attendancePercentage}%</strong></td>
+                    <td>${group.totalMembers}</td>
+                    <td>${group.totalAttendances}</td>
+                    <td class="absent-cell">${group.absentCount}</td>
+                    <td>
+                        <strong style="color: #3b82f6; font-size: 1rem;">
+                            ⏰ ${group.averageArrival}
+                        </strong>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Configurar ordenamiento
+            setupColumnSorting();
+        }
+
+        function loadMembersData() {
+            if (!isDataLoaded) return;
+            
+            // Llenar selector de grupos
+            const groupSelect = document.getElementById('group-select');
+            const groups = [...new Set(asistenciaData.map(p => p.Grupo || p.Group || p.grupo))].sort();
+            
+            // Limpiar opciones existentes (excepto "Todos")
+            while (groupSelect.children.length > 1) {
+                groupSelect.removeChild(groupSelect.lastChild);
+            }
+            
+            groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group;
+                option.textContent = group;
+                groupSelect.appendChild(option);
+            });
+
+            // Cargar todos los miembros inicialmente
+            filterByGroup();
+        }
+
+        function filterByGroup() {
+            if (!isDataLoaded) return;
+            
+            const selectedGroup = document.getElementById('group-select').value;
+            let membersToShow = asistenciaData;
+            
+            if (selectedGroup !== 'all') {
+                membersToShow = asistenciaData.filter(person => {
+                    const grupo = person.Grupo || person.Group || person.grupo;
+                    return grupo === selectedGroup;
+                });
+            }
+
+            const tbody = document.querySelector('#members-table tbody');
+            tbody.innerHTML = '';
+
+            if (membersToShow.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="7" class="no-data-state">No hay miembros para mostrar</td>';
+                tbody.appendChild(row);
+                return;
+            }
+
+            membersToShow.forEach(person => {
+                const personQR = person.QR_Code || person['QR Code'] || person.QRCode || person.qr_code;
+                const attendances = escaneoData.filter(scan => {
+                    const scanQR = scan.QR_Code || scan['QR Code'] || scan.QRCode || scan.qr_code;
+                    return scanQR === personQR;
+                });
+                
+                const lastAttendance = attendances.length > 0 ? attendances[attendances.length - 1] : null;
+                
+                let punctualCount = 0;
+                attendances.forEach(attendance => {
+                    const fecha = attendance.Fecha || attendance.fecha || attendance.Date || attendance.date || attendance.Timestamp || attendance.timestamp;
+                    if (fecha && isOnTime(fecha)) {
+                        punctualCount++;
+                    }
+                });
+
+                const punctualityPercentage = attendances.length > 0 ? 
+                    Math.round((punctualCount / attendances.length) * 100) : 0;
+
+                const lastFecha = lastAttendance ? 
+                    (lastAttendance.Fecha || lastAttendance.fecha || lastAttendance.Date || lastAttendance.date || lastAttendance.Timestamp || lastAttendance.timestamp) : null;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${person.Nombre || person.Name || person.nombre || 'Sin nombre'}</strong></td>
+                    <td>${person.Grupo || person.Group || person.grupo || 'Sin grupo'}</td>
+                    <td>
+                        <span class="status-badge ${attendances.length > 0 ? 'status-present' : 'status-absent'}">
+                            ${attendances.length > 0 ? 'Presente' : 'Ausente'}
+                        </span>
+                    </td>
+                    <td>${attendances.length}</td>
+                    <td>${lastFecha ? formatDate(lastFecha) : 'N/A'}</td>
+                    <td>
+                        <strong style="color: #3b82f6; font-size: 1rem;">
+                            ⏰ ${lastFecha ? formatTime(lastFecha) : 'N/A'}
+                        </strong>
+                    </td>
+                    <td>
+                        ${attendances.length > 0 ? 
+                            `<span class="status-badge ${punctualityPercentage >= 50 ? 'status-on-time' : 'status-late'}">
+                                ${punctualityPercentage}%
+                            </span>` : 
+                            'N/A'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadIndividualData() {
+            if (!isDataLoaded) return;
+            
+            const individualStats = [];
+
+            asistenciaData.forEach(person => {
+                const personQR = person.QR_Code || person['QR Code'] || person.QRCode || person.qr_code;
+                const attendances = escaneoData.filter(scan => {
+                    const scanQR = scan.QR_Code || scan['QR Code'] || scan.QRCode || scan.qr_code;
+                    return scanQR === personQR;
+                });
+                
+                let punctualCount = 0;
+                let totalMinutes = 0;
+                let validTimes = 0;
+                let currentStreak = 0;
+                let tempStreak = 0;
+
+                // Ordenar asistencias por fecha
+                const sortedAttendances = attendances.sort((a, b) => {
+                    const fechaA = a.Fecha || a.fecha || a.Date || a.date || a.Timestamp || a.timestamp;
+                    const fechaB = b.Fecha || b.fecha || b.Date || b.date || b.Timestamp || b.timestamp;
+                    
+                    if (!fechaA || !fechaB) return 0;
+                    
+                    const dateA = new Date(fechaA.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    const dateB = new Date(fechaB.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    return dateA - dateB;
+                });
+
+                sortedAttendances.forEach((attendance, index) => {
+                    const fecha = attendance.Fecha || attendance.fecha || attendance.Date || attendance.date || attendance.Timestamp || attendance.timestamp;
+                    const punctual = fecha ? isOnTime(fecha) : false;
+                    
+                    if (punctual) {
+                        punctualCount++;
+                        tempStreak++;
+                        if (index === sortedAttendances.length - 1) {
+                            currentStreak = tempStreak;
+                        }
+                    } else {
+                        if (index === sortedAttendances.length - 1 && tempStreak > 0) {
+                            currentStreak = 0; // Racha rota si el último no es puntual
+                        }
+                        tempStreak = 0;
+                    }
+
+                    // Calcular tiempo promedio
+                    if (fecha) {
+                        try {
+                            let date;
+                            if (fecha.includes('/')) {
+                                const parts = fecha.split(' ');
+                                const dateParts = parts[0].split('/');
+                                const timePart = parts[1] || '00:00:00';
+                                
+                                if (dateParts.length === 3) {
+                                    date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                                    
+                                    if (timePart) {
+                                        const timeParts = timePart.split(':');
+                                        date.setHours(parseInt(timeParts[0]) || 0);
+                                        date.setMinutes(parseInt(timeParts[1]) || 0);
+                                    }
+                                }
+                            }
+
+                            if (date && !isNaN(date.getTime())) {
+                                const arrivalMinutes = date.getHours() * 60 + date.getMinutes();
+                                totalMinutes += arrivalMinutes;
+                                validTimes++;
+                            }
+                        } catch (error) {
+                            // Ignorar errores
+                        }
+                    }
+                });
+
+                // Calcular tiempo promedio de llegada
+                let averageArrival = '--:--';
+                if (validTimes > 0) {
+                    const avgMinutes = Math.round(totalMinutes / validTimes);
+                    const avgHour = Math.floor(avgMinutes / 60);
+                    const avgMin = avgMinutes % 60;
+                    averageArrival = `${avgHour.toString().padStart(2, '0')}:${avgMin.toString().padStart(2, '0')}`;
+                }
+
+                const punctualityPercentage = attendances.length > 0 ? 
+                    Math.round((punctualCount / attendances.length) * 100) : 0;
+
+                individualStats.push({
+                    name: person.Nombre || person.Name || person.nombre || 'Sin nombre',
+                    group: person.Grupo || person.Group || person.grupo || 'Sin grupo',
+                    totalAttendances: attendances.length,
+                    punctualCount,
+                    punctualityPercentage,
+                    averageArrival,
+                    currentStreak
+                });
+            });
+
+            // Nuevos criterios para ranking individual
+            const sortedStats = individualStats
+                .filter(stat => stat.totalAttendances > 0) // Solo mostrar quienes han asistido
+                .sort((a, b) => {
+                    // 1° % Puntualidad (mayor es mejor)
+                    if (b.punctualityPercentage !== a.punctualityPercentage) {
+                        return b.punctualityPercentage - a.punctualityPercentage;
+                    }
+                    
+                    // 2° Total de asistencias (mayor es mejor)
+                    if (b.totalAttendances !== a.totalAttendances) {
+                        return b.totalAttendances - a.totalAttendances;
+                    }
+                    
+                    // 3° ⏰ Promedio de llegada (más temprano es mejor - ÚLTIMO CRITERIO)
+                    if (a.averageArrival !== '--:--' && b.averageArrival !== '--:--') {
+                        const timeA = a.averageArrival.split(':').map(Number);
+                        const timeB = b.averageArrival.split(':').map(Number);
+                        const minutesA = timeA[0] * 60 + timeA[1];
+                        const minutesB = timeB[0] * 60 + timeB[1];
+                        return minutesA - minutesB;
+                    }
+                    
+                    return 0;
+                });
+
+            const tbody = document.querySelector('#individual-table tbody');
+            tbody.innerHTML = '';
+
+            if (sortedStats.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="8" class="no-data-state">No hay datos de asistencia individual</td>';
+                tbody.appendChild(row);
+                return;
+            }
+
+            sortedStats.forEach((stat, index) => {
+                const row = document.createElement('tr');
+                
+                // Destacar los primeros 3 lugares
+                const isTopThree = index < 3;
+                const punctualityColor = stat.punctualityPercentage >= 80 ? '#059669' : 
+                                       stat.punctualityPercentage >= 50 ? '#d97706' : '#dc2626';
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="member-rank rank-${Math.min(index + 1, 3)}">${index + 1}</div>
+                    </td>
+                    <td><strong style="${isTopThree ? 'color: #059669;' : ''}">${stat.name}</strong></td>
+                    <td>${stat.group}</td>
+                    <td>
+                        <strong style="color: ${punctualityColor}; font-size: 1.1rem;">
+                            ${stat.punctualityPercentage}%
+                        </strong>
+                    </td>
+                    <td>
+                        <strong style="color: #3b82f6; font-size: 1rem;">
+                            ${stat.averageArrival}
+                        </strong>
+                    </td>
+                    <td>${stat.totalAttendances}</td>
+                    <td>${stat.punctualCount}</td>
+                    <td>
+                        <span class="status-badge ${stat.currentStreak > 0 ? 'status-on-time' : 'status-late'}">
+                            ${stat.currentStreak} días
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Función para ordenar por columna
+        function setupColumnSorting() {
+            const table = document.getElementById('groups-table');
+            const headers = table.querySelectorAll('th');
+            const tbody = table.querySelector('tbody');
+            
+            headers.forEach((header, index) => {
+                // Solo hacer sortable columnas con datos
+                if (index > 0) {
+                    header.classList.add('sortable');
+                    
+                    header.addEventListener('click', () => {
+                        // Obtener todas las filas
+                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                        
+                        // Determinar dirección de ordenamiento
+                        const isAscending = !header.classList.contains('asc');
+                        header.classList.toggle('asc', isAscending);
+                        header.classList.toggle('desc', !isAscending);
+                        
+                        // Ordenar filas
+                        rows.sort((rowA, rowB) => {
+                            const cellA = rowA.cells[index].textContent;
+                            const cellB = rowB.cells[index].textContent;
+                            
+                            // Manejar diferentes tipos de datos
+                            let valueA, valueB;
+                            
+                            if (index === 2 || index === 5) { // Porcentajes
+                                valueA = parseFloat(cellA);
+                                valueB = parseFloat(cellB);
+                            }
+                            else if (index === 9) { // Hora promedio
+                                const [hoursA, minsA] = cellA.split(':').map(Number);
+                                const [hoursB, minsB] = cellB.split(':').map(Number);
+                                valueA = hoursA * 60 + minsA;
+                                valueB = hoursB * 60 + minsB;
+                            }
+                            else if (index === 3 || index === 4 || index === 6 || index === 7 || index === 8) { // Números
+                                valueA = parseFloat(cellA);
+                                valueB = parseFloat(cellB);
+                            }
+                            else { // Texto
+                                valueA = cellA;
+                                valueB = cellB;
+                            }
+                            
+                            if (valueA < valueB) return isAscending ? -1 : 1;
+                            if (valueA > valueB) return isAscending ? 1 : -1;
+                            return 0;
+                        });
+                        
+                        // Reinsertar filas ordenadas
+                        rows.forEach(row => tbody.appendChild(row));
+                    });
+                }
+            });
+        }
+
+        // ============== INICIALIZACIÓN ==============
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intentar conectar automáticamente al cargar
+            connectToSheets();
+        });
+    </script>
+</body>
+</html>
