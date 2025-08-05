@@ -1,4 +1,4 @@
-cd ~/Desktop/portal # Ejemplo: cd Documents/mi-proyecto
+cd Desktop\portal # Ejemplo: cd Documents/mi-proyecto
 git init
 git add .
 git commit -m "Primer commit"
