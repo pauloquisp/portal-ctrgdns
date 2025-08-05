@@ -621,6 +621,207 @@
             content: "↓";
             opacity: 1;
         }
+
+        /* ======== ESTILOS PARA RESUMEN DIARIO ======== */
+        .daily-summary-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #8b5cf6;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .daily-summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .daily-summary-card h2 {
+            color: #1f2937;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .daily-summary-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .daily-summary-filters label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .daily-summary-filters select {
+            padding: 9px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #374151;
+            background: white;
+            cursor: pointer;
+            min-width: 180px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+
+        .daily-summary-filters select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .daily-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .daily-summary-item {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+
+        .daily-summary-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .daily-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .daily-date {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+
+        .daily-attendance {
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        .attendance-good {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .attendance-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .attendance-poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .daily-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .daily-stat {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .daily-stat.present {
+            border-left: 3px solid #10b981;
+        }
+
+        .daily-stat.late {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .daily-stat.absent {
+            border-left: 3px solid #ef4444;
+        }
+
+        .daily-stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .daily-stat-label {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .daily-chart {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 12px;
+            display: flex;
+        }
+
+        .chart-present {
+            background: #10b981;
+        }
+
+        .chart-late {
+            background: #f59e0b;
+        }
+
+        .chart-absent {
+            background: #ef4444;
+        }
+
+        .daily-stats-total {
+            grid-column: span 2;
+            text-align: center;
+            padding: 8px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .daily-summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .daily-summary-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     </style>
 </head>
 <body>
@@ -661,6 +862,7 @@
             <button class="nav-tab" onclick="showSection('groups')" disabled>Ranking Grupos</button>
             <button class="nav-tab" onclick="showSection('members')" disabled>Miembros</button>
             <button class="nav-tab" onclick="showSection('individual')" disabled>Ranking Individual</button>
+            <button class="nav-tab" onclick="showSection('daily')" disabled>Resumen Diario</button>
         </div>
 
         <!-- Overview Section -->
@@ -744,7 +946,7 @@
                                 <th>Puntuales</th>
                                 <th>
                                     <span class="header-tooltip">
-                                        Tardíos
+                                        Impuntuales
                                         <span class="tooltip-text">Asistencias fuera de hora (después de las 08:00)</span>
                                     </span>
                                 </th>
@@ -859,6 +1061,35 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nueva sección: Resumen Diario -->
+        <div id="daily-section" class="content-section">
+            <div class="daily-summary-card">
+                <h2>📅 Resumen Diario de Asistencia</h2>
+                
+                <div class="daily-summary-filters">
+                    <label for="daily-group-select">Grupo:</label>
+                    <select id="daily-group-select" onchange="loadDailySummary()">
+                        <option value="all">Todos los Grupos</option>
+                    </select>
+                    
+                    <label for="daily-sort-select">Ordenar por:</label>
+                    <select id="daily-sort-select" onchange="loadDailySummary()">
+                        <option value="recent">Más recientes primero</option>
+                        <option value="oldest">Más antiguos primero</option>
+                        <option value="attendance">Mejor asistencia primero</option>
+                        <option value="punctuality">Mejor puntualidad primero</option>
+                    </select>
+                </div>
+                
+                <div id="daily-summary-content" class="daily-summary-grid">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Cargando resumen diario...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1193,6 +1424,17 @@
                 option.textContent = group;
                 groupSelect.appendChild(option);
             });
+            
+            // Llenar selector de grupos para el resumen diario
+            const dailyGroupSelect = document.getElementById('daily-group-select');
+            dailyGroupSelect.innerHTML = '<option value="all">Todos los Grupos</option>';
+            
+            groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group;
+                option.textContent = group;
+                dailyGroupSelect.appendChild(option);
+            });
         }
 
         // ============== FUNCIONES DE NAVEGACIÓN ==============
@@ -1224,6 +1466,8 @@
                 filterMembers();
             } else if (sectionName === 'individual') {
                 loadIndividualData();
+            } else if (sectionName === 'daily') {
+                loadDailySummary();
             }
         }
 
@@ -1233,6 +1477,7 @@
             loadGroupsData();
             filterMembers();
             loadIndividualData();
+            loadDailySummary();
         }
 
         // ============== FUNCIONES DE CARGA DE DATOS ==============
@@ -1960,6 +2205,167 @@
                     </td>
                 `;
                 tbody.appendChild(row);
+            });
+        }
+        
+        // ============== FUNCIONALIDAD RESUMEN DIARIO ==============
+        function loadDailySummary() {
+            if (!isDataLoaded) return;
+            
+            const container = document.getElementById('daily-summary-content');
+            container.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Cargando resumen diario...</p></div>';
+            
+            // Obtener parámetros de filtrado
+            const selectedGroup = document.getElementById('daily-group-select').value;
+            const sortOption = document.getElementById('daily-sort-select').value;
+            
+            // Calcular resumen diario
+            const dailySummary = calculateDailySummary(selectedGroup);
+            
+            // Ordenar según selección
+            if (sortOption === 'recent') {
+                dailySummary.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else if (sortOption === 'oldest') {
+                dailySummary.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (sortOption === 'attendance') {
+                dailySummary.sort((a, b) => b.attendanceRate - a.attendanceRate);
+            } else if (sortOption === 'punctuality') {
+                dailySummary.sort((a, b) => b.punctualityRate - a.punctualityRate);
+            }
+            
+            // Generar HTML
+            container.innerHTML = '';
+            
+            if (dailySummary.length === 0) {
+                container.innerHTML = '<div class="no-data-state">No hay datos de asistencia diaria disponibles</div>';
+                return;
+            }
+            
+            dailySummary.forEach(day => {
+                const attendanceClass = day.attendanceRate >= 80 ? 'attendance-good' : 
+                                      day.attendanceRate >= 50 ? 'attendance-medium' : 'attendance-poor';
+                
+                const presentPercent = (day.presentCount / day.totalMembers) * 100;
+                const latePercent = (day.lateCount / day.totalMembers) * 100;
+                const absentPercent = (day.absentCount / day.totalMembers) * 100;
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'daily-summary-item';
+                dayElement.innerHTML = `
+                    <div class="daily-summary-header">
+                        <div class="daily-date">${formatDate(day.date)}</div>
+                        <div class="daily-attendance ${attendanceClass}">${day.attendanceRate}% asistencia</div>
+                    </div>
+                    
+                    <div class="daily-stats">
+                        <div class="daily-stat present">
+                            <div class="daily-stat-value">${day.presentCount}</div>
+                            <div class="daily-stat-label">Puntuales</div>
+                        </div>
+                        
+                        <div class="daily-stat late">
+                            <div class="daily-stat-value">${day.lateCount}</div>
+                            <div class="daily-stat-label">Impuntuales</div>
+                        </div>
+                        
+                        <div class="daily-stat absent">
+                            <div class="daily-stat-value">${day.absentCount}</div>
+                            <div class="daily-stat-label">Faltantes</div>
+                        </div>
+                        
+                        <div class="daily-stats-total">
+                            Total: ${day.totalMembers} miembros
+                        </div>
+                    </div>
+                    
+                    <div class="daily-chart">
+                        <div class="chart-present" style="width: ${presentPercent}%"></div>
+                        <div class="chart-late" style="width: ${latePercent}%"></div>
+                        <div class="chart-absent" style="width: ${absentPercent}%"></div>
+                    </div>
+                `;
+                
+                container.appendChild(dayElement);
+            });
+        }
+        
+        function calculateDailySummary(selectedGroup) {
+            const summary = {};
+            const totalMembers = selectedGroup === 'all' 
+                ? asistenciaData.length 
+                : asistenciaData.filter(p => {
+                    const grupo = p.Grupo || p.Group || p.grupo;
+                    return grupo === selectedGroup;
+                }).length;
+            
+            // Procesar cada escaneo
+            escaneoData.forEach(scan => {
+                const fecha = scan.Fecha || scan.fecha;
+                if (!fecha) return;
+                
+                const datePart = extractDatePart(fecha);
+                if (!datePart) return;
+                
+                // Filtrar por grupo si es necesario
+                const qrCode = scan.QR_Code || scan['QR Code'] || scan.QRCode || scan.qr_code;
+                const person = asistenciaData.find(p => {
+                    const personQR = p.QR_Code || p['QR Code'] || p.QRCode || p.qr_code;
+                    return personQR === qrCode;
+                });
+                
+                if (!person) return;
+                
+                const grupo = person.Grupo || person.Group || person.grupo;
+                if (selectedGroup !== 'all' && grupo !== selectedGroup) return;
+                
+                // Inicializar día si es necesario
+                if (!summary[datePart]) {
+                    summary[datePart] = {
+                        date: datePart,
+                        presentCount: 0,
+                        lateCount: 0,
+                        absentCount: totalMembers,
+                        totalMembers: totalMembers,
+                        attendedMembers: new Set()
+                    };
+                }
+                
+                // Solo contar la primera asistencia del día por persona
+                if (!summary[datePart].attendedMembers.has(qrCode)) {
+                    summary[datePart].attendedMembers.add(qrCode);
+                    
+                    if (isOnTime(fecha)) {
+                        summary[datePart].presentCount++;
+                    } else {
+                        summary[datePart].lateCount++;
+                    }
+                    
+                    summary[datePart].absentCount--;
+                }
+            });
+            
+            // Procesar días sin escaneos
+            const dateSet = new Set();
+            escaneoData.forEach(scan => {
+                const fecha = scan.Fecha || scan.fecha;
+                if (fecha) {
+                    const datePart = extractDatePart(fecha);
+                    if (datePart) dateSet.add(datePart);
+                }
+            });
+            
+            // Calcular métricas adicionales
+            return Object.values(summary).map(day => {
+                const totalAttendances = day.presentCount + day.lateCount;
+                day.attendanceRate = Math.round(
+                    (totalAttendances / day.totalMembers) * 100
+                );
+                
+                day.punctualityRate = totalAttendances > 0
+                    ? Math.round((day.presentCount / totalAttendances) * 100)
+                    : 0;
+                
+                return day;
             });
         }
         
