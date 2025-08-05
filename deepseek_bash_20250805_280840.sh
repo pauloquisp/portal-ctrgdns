@@ -1,4 +1,4 @@
-cd ruta/a/tu/carpeta  # Ejemplo: cd Documents/mi-proyecto
+cd C:\Users\Usuario\Desktop\portal  # Ejemplo: cd Documents/mi-proyecto
 git init
 git add .
 git commit -m "Primer commit"
