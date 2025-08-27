@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACMS Secretaría</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+        }
+        
+        /* Menú lateral que se expande con hover */
+        .sidebar {
+            width: 60px;
+            background: #2c3e50;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar:hover {
+            width: 250px;
+        }
+        
+        .sidebar-header {
+            padding: 0 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .sidebar:hover .sidebar-header {
+            opacity: 1;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 300;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            color: #ecf0f1;
+            opacity: 0.7;
+        }
+        
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .nav-item:hover {
+            background: #34495e;
+        }
+        
+        .nav-item.active {
+            background: #3498db;
+            border-left-color: #ecf0f1;
+        }
+        
+        .nav-item i {
+            margin-right: 20px;
+            font-size: 20px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item span {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .sidebar:hover .nav-item span {
+            opacity: 1;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            margin-left: 60px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .dashboard-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .dashboard-frame {
+            width: 100%;
+            height: calc(100vh - 40px);
+            border: none;
+        }
+        
+        .dashboard-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 120px);
+            color: #7f8c8d;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .dashboard-placeholder i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+        
+        .dashboard-placeholder h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 300;
+            color: #34495e;
+        }
+        
+        .dashboard-placeholder p {
+            font-size: 16px;
+            max-width: 500px;
+            line-height: 1.5;
+            color: #7f8c8d;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+                z-index: 1000;
+            }
+            
+            .sidebar.open {
+                left: 0;
+                width: 250px;
+            }
+            
+            .sidebar .nav-item span {
+                opacity: 1;
+            }
+            
+            .sidebar .sidebar-header {
+                opacity: 1;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1001;
+                background: #3498db;
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 900;
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de menú para móviles -->
+    <div class="menu-toggle" id="menuToggle" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Overlay para móviles -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Menú lateral -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>ACMS Secretaría</h1>
+            <p>Estadísticas de miembros</p>
+        </div>
+        <div class="nav-item active" data-file="1._por_sexo.html">
+            <i class="fas fa-venus-mars"></i>
+            <span>Por Sexo</span>
+        </div>
+        <div class="nav-item" data-file="2._Movimientos_5_años.html">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Movimientos</span>
+        </div>
+        <div class="nav-item" data-file="3._Grupos_de_edad.html">
+            <i class="fas fa-users"></i>
+            <span>Grupos de Edad</span>
+        </div>
+        <div class="nav-item" data-file="4._Tiempo_de_bautismo.html">
+            <i class="fas fa-water"></i>
+            <span>Tiempo de Bautismo</span>
+        </div>
+        <div class="nav-item" data-file="5._Clasificación_GER_2025.html">
+            <i class="fas fa-chart-pie"></i>
+            <span>Clasificación GER</span>
+        </div>
+        <div class="nav-item" data-file="6._Miembros_por_región.html">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Miembros por Región</span>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="dashboard-container">
+            <iframe id="dashboardFrame" class="dashboard-frame" src="1._por_sexo.html" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const navItems = document.querySelectorAll('.nav-item');
+            const dashboardFrame = document.getElementById('dashboardFrame');
+            
+            // Detectar si es un dispositivo móvil
+            function isMobile() {
+                return window.innerWidth <= 768;
+            }
+            
+            // Configurar comportamiento según el dispositivo
+            function setupMenu() {
+                if (isMobile()) {
+                    menuToggle.style.display = 'flex';
+                    sidebar.classList.remove('open');
+                    
+                    // Alternar menú en móviles
+                    menuToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        sidebar.classList.toggle('open');
+                        overlay.classList.toggle('active');
+                    });
+                    
+                    // Cerrar menú al hacer clic en el overlay
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                    });
+                    
+                    // Cerrar menú al hacer clic fuera
+                    document.addEventListener('click', function(e) {
+                        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            overlay.classList.remove('active');
+                        }
+                    });
+                } else {
+                    menuToggle.style.display = 'none';
+                    overlay.classList.remove('active');
+                }
+            }
+            
+            // Inicializar
+            setupMenu();
+            
+            // Reconfigurar al cambiar el tamaño de la ventana
+            window.addEventListener('resize', setupMenu);
+            
+            // Manejar la navegación
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const file = this.getAttribute('data-file');
+                    
+                    // Remover clase active de todos los items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    
+                    // Agregar clase active al item seleccionado
+                    this.classList.add('active');
+                    
+                    // Cargar el archivo en el iframe
+                    dashboardFrame.src = file;
+                    
+                    // Cerrar el menú en móviles después de seleccionar
+                    if (isMobile()) {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Manejar errores de carga del iframe
+            dashboardFrame.addEventListener('error', function() {
+                const placeholder = `
+                    <div class="dashboard-placeholder">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Error al cargar el dashboard</h2>
+                        <p>No se pudo cargar el archivo solicitado. Asegúrate de que el archivo exista en la misma carpeta que este archivo principal.</p>
+                        <p>Archivo no encontrado: <strong>${dashboardFrame.src}</strong></p>
+                    </div>
+                `;
+                
+                try {
+                    const iframeDoc = dashboardFrame.contentDocument || dashboardFrame.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(placeholder);
+                    iframeDoc.close();
+                } catch (e) {
+                    console.error('Error al mostrar mensaje de error:', e);
+                }
+            });
+            
+            // Ajustar altura del iframe según su contenido
+            function resizeIframe() {
+                try {
+                    const iframeDoc = dashboardFrame.contentDocument || dashboardFrame.contentWindow.document;
+                    const iframeBody = iframeDoc.body;
+                    const iframeHtml = iframeDoc.documentElement;
+                    
+                    const height = Math.max(
+                        iframeBody.scrollHeight, 
+                        iframeBody.offsetHeight, 
+                        iframeHtml.clientHeight, 
+                        iframeHtml.scrollHeight, 
+                        iframeHtml.offsetHeight
+                    );
+                    
+                    dashboardFrame.style.height = height + 'px';
+                } catch (e) {
+                    console.log('Error ajustando altura del iframe:', e);
+                }
+            }
+            
+            // Intentar ajustar la altura cuando el iframe carga
+            dashboardFrame.addEventListener('load', function() {
+                setTimeout(resizeIframe, 100);
+                
+                // También ajustar en caso de redimensionamiento
+                window.addEventListener('resize', resizeIframe);
+            });
+        });
+    </script>
+</body>
+</html>
