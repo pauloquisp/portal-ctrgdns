@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Movimientos en 5 años</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8e8e8;
+            background-image: 
+                linear-gradient(rgba(180,180,180,0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180,180,180,0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .dashboard {
+            background: transparent;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .section-title {
+            position: absolute;
+            top: -80px;
+            left: 0;
+            font-size: 48px;
+            font-weight: 300;
+            color: #888;
+            line-height: 1.1;
+        }
+        
+        .header {
+            position: absolute;
+            top: -80px;
+            right: 0;
+            text-align: right;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .total-members {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 20px;
+        }
+        
+        .main-visualization {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 1000px;
+            z-index: 5;
+            margin-top: 50px;
+        }
+        
+        .gains-number {
+            font-size: 90px;
+            font-weight: bold;
+            color: #27ae60;
+            line-height: 1;
+            margin-right: 10px;
+        }
+        
+        .icons-container {
+            display: grid;
+            grid-template-columns: repeat(20, 30px);
+            grid-template-rows: repeat(5, 30px);
+            gap: 0px;
+            margin: 0 40px;
+        }
+        
+        .movement-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .movement-icon:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+        
+        .movement-icon.gains svg {
+            fill: #27ae60;
+        }
+        
+        .movement-icon.losses svg {
+            fill: #e74c3c;
+        }
+        
+        .losses-number {
+            font-size: 90px;
+            font-weight: bold;
+            color: #e74c3c;
+            line-height: 1;
+            margin-left: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 60px;
+            font-size: 14px;
+            color: #666;
+            background: rgba(255,255,255,0.7);
+            padding: 20px 40px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-item.gains .stat-value {
+            color: #27ae60;
+        }
+        
+        .stat-item.losses .stat-value {
+            color: #e74c3c;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+        }
+        
+        .stat-item:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="section-title">Movimientos<br>en 5 años</div>
+        
+        <div class="header">
+            <div class="total-members">De 45.380</div>
+            <div class="subtitle">a 100 Miembros</div>
+        </div>
+        
+        <div class="main-visualization">
+            <div class="gains-number">
+                50
+                <div style="font-size: 16px; font-weight: 600; color: #666; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Ganancias reales</div>
+            </div>
+            
+            <div class="icons-container" id="iconsContainer">
+                <!-- Los íconos se generarán con JavaScript -->
+            </div>
+            
+            <div class="losses-number">
+                50
+                <div style="font-size: 16px; font-weight: 600; color: #666; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Pérdidas reales</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item gains">
+            <div class="tooltip">22.754 ÷ 45.380 × 100 = 50.15% → 50 de 100</div>
+            <div class="stat-label">Ganancias reales</div>
+            <div class="stat-value">22.754</div>
+        </div>
+        <div class="stat-item losses">
+            <div class="tooltip">22.626 ÷ 45.380 × 100 = 49.85% → 50 de 100</div>
+            <div class="stat-label">Pérdidas reales</div>
+            <div class="stat-value">22.626</div>
+        </div>
+    </div>
+
+    <script>
+        // SVG del ícono de persona
+        const personIconSVG = `
+            <svg width="26" height="26" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        `;
+        
+        // Generar los 100 íconos de movimientos en grid 20x5 por columnas
+        function generateMovementIcons() {
+            const container = document.getElementById('iconsContainer');
+            const gainsCount = 50;
+            const lossesCount = 50;
+            const totalCols = 20;
+            const totalRows = 5;
+            
+            // Crear un array bidimensional para organizar por columnas
+            const grid = [];
+            for (let col = 0; col < totalCols; col++) {
+                grid[col] = [];
+                for (let row = 0; row < totalRows; row++) {
+                    grid[col][row] = null;
+                }
+            }
+            
+            // Llenar por columnas: primero ganancias, luego perdidas
+            let currentIndex = 0;
+            
+            // Llenar ganancias
+            for (let i = 0; i < gainsCount; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'gains';
+                currentIndex++;
+            }
+            
+            // Llenar perdidas
+            for (let i = 0; i < lossesCount; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'losses';
+                currentIndex++;
+            }
+            
+            // Crear los elementos DOM en orden de fila
+            for (let row = 0; row < totalRows; row++) {
+                for (let col = 0; col < totalCols; col++) {
+                    const type = grid[col][row];
+                    const movementIcon = document.createElement('div');
+                    movementIcon.className = `movement-icon ${type}`;
+                    movementIcon.innerHTML = personIconSVG;
+                    movementIcon.title = `${type === 'gains' ? 'Ganancia' : 'Perdida'} - Col: ${col + 1}, Fila: ${row + 1}`;
+                    
+                    // Añadir animación escalonada por columnas
+                    const animationIndex = col * totalRows + row;
+                    movementIcon.style.animationDelay = `${animationIndex * 3}ms`;
+                    
+                    container.appendChild(movementIcon);
+                }
+            }
+        }
+        
+        // Ejecutar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', generateMovementIcons);
+        
+        // Añadir CSS para animación de entrada
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes iconAppear {
+                from {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            
+            .movement-icon {
+                animation: iconAppear 0.3s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
