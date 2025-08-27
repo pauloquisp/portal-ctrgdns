@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tiempo de Bautismo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8e8e8;
+            background-image: 
+                linear-gradient(rgba(180,180,180,0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180,180,180,0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .dashboard {
+            background: transparent;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .section-title {
+            position: absolute;
+            top: -80px;
+            left: 0;
+            font-size: 48px;
+            font-weight: 300;
+            color: #888;
+            line-height: 1.1;
+        }
+        
+        .visualization-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .icons-container {
+            display: grid;
+            grid-template-columns: repeat(20, 30px);
+            grid-template-rows: repeat(5, 30px);
+            gap: 0px;
+            margin: 80px 80px;
+        }
+        
+        .baptism-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .baptism-icon:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+        
+        .baptism-icon.years-0-2 svg { fill: #E91E63; }
+        .baptism-icon.years-3-4 svg { fill: #FF6F00; }
+        .baptism-icon.years-5-9 svg { fill: #2E7D32; }
+        .baptism-icon.years-10-19 svg { fill: #1976D2; }
+        .baptism-icon.years-20-29 svg { fill: #7B1FA2; }
+        .baptism-icon.years-30-plus svg { fill: #D32F2F; }
+        .baptism-icon.no-movement svg { fill: #546E7A; }
+        
+        /* Números posicionados específicamente alrededor del grid */
+        .baptism-number {
+            position: absolute;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1;
+            text-align: center;
+        }
+        
+        .baptism-number.years-0-2 { 
+            color: #E91E63; 
+            left: 20px;
+            top: 120px;
+        }
+        
+        .baptism-number.years-3-4 { 
+            color: #FF6F00; 
+            top: 20px;
+            left: 250px;
+        }
+        
+        .baptism-number.years-5-9 { 
+            color: #2E7D32; 
+            bottom: 20px;
+            left: 350px;
+        }
+        
+        .baptism-number.years-10-19 { 
+            color: #1976D2; 
+            top: 20px;
+            left: 500px;
+        }
+        
+        .baptism-number.years-20-29 { 
+            color: #7B1FA2; 
+            right: 20px;
+            top: 120px;
+        }
+        
+        .baptism-number.years-30-plus { 
+            color: #D32F2F; 
+            right: 20px;
+            bottom: 80px;
+        }
+        
+        .baptism-number.no-movement { 
+            color: #546E7A; 
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .baptism-label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        
+        .baptism-range {
+            position: absolute;
+            top: 140%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #888;
+            white-space: nowrap;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #666;
+            background: rgba(255,255,255,0.7);
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-item {
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 10px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-item.years-0-2 .stat-value { color: #E91E63; }
+        .stat-item.years-3-4 .stat-value { color: #FF6F00; }
+        .stat-item.years-5-9 .stat-value { color: #2E7D32; }
+        .stat-item.years-10-19 .stat-value { color: #1976D2; }
+        .stat-item.years-20-29 .stat-value { color: #7B1FA2; }
+        .stat-item.years-30-plus .stat-value { color: #D32F2F; }
+        .stat-item.no-movement .stat-value { color: #546E7A; }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+        }
+        
+        .stat-item:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="section-title">Tiempo<br>de bautismo</div>
+        
+        <div class="visualization-wrapper">
+            <div class="icons-container" id="iconsContainer">
+                <!-- Los íconos se generarán con JavaScript -->
+            </div>
+            
+            <!-- Números posicionados alrededor del grid -->
+            <div class="baptism-number years-0-2">
+                25
+                <div class="baptism-label">Hasta 2 años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number years-3-4">
+                18
+                <div class="baptism-label">3-4 años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number years-5-9">
+                26
+                <div class="baptism-label">5-9 años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number years-10-19">
+                27
+                <div class="baptism-label">10-19 años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number years-20-29">
+                2
+                <div class="baptism-label">20-29 años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number years-30-plus">
+                1
+                <div class="baptism-label">30+ años</div>
+                <div class="baptism-range">de Bautismo</div>
+            </div>
+            <div class="baptism-number no-movement">
+                1
+                <div class="baptism-label">Sin Movimiento</div>
+                <div class="baptism-range"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item years-0-2">
+            <div class="tooltip">8.944 ÷ 35.475 × 100 = 25.2% → 25 de 100</div>
+            <div class="stat-label">Hasta 2 años</div>
+            <div class="stat-value">8.944</div>
+        </div>
+        <div class="stat-item years-3-4">
+            <div class="tooltip">6.252 ÷ 35.475 × 100 = 17.6% → 18 de 100</div>
+            <div class="stat-label">3-4 años</div>
+            <div class="stat-value">6.252</div>
+        </div>
+        <div class="stat-item years-5-9">
+            <div class="tooltip">9.204 ÷ 35.475 × 100 = 25.9% → 26 de 100</div>
+            <div class="stat-label">5-9 años</div>
+            <div class="stat-value">9.204</div>
+        </div>
+        <div class="stat-item years-10-19">
+            <div class="tooltip">9.456 ÷ 35.475 × 100 = 26.7% → 27 de 100</div>
+            <div class="stat-label">10-19 años</div>
+            <div class="stat-value">9.456</div>
+        </div>
+        <div class="stat-item years-20-29">
+            <div class="tooltip">714 ÷ 35.475 × 100 = 2.0% → 2 de 100</div>
+            <div class="stat-label">20-29 años</div>
+            <div class="stat-value">714</div>
+        </div>
+        <div class="stat-item years-30-plus">
+            <div class="tooltip">75 ÷ 35.475 × 100 = 0.2% → 1 de 100</div>
+            <div class="stat-label">30+ años</div>
+            <div class="stat-value">75</div>
+        </div>
+        <div class="stat-item no-movement">
+            <div class="tooltip">830 ÷ 35.475 × 100 = 2.3% → 1 de 100</div>
+            <div class="stat-label">Sin Movimiento</div>
+            <div class="stat-value">830</div>
+        </div>
+    </div>
+
+    <script>
+        // SVG del ícono de persona
+        const personIconSVG = `
+            <svg width="26" height="26" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        `;
+        
+        // Generar los 100 íconos de tiempo de bautismo en grid 20x5 por columnas
+        function generateBaptismIcons() {
+            const container = document.getElementById('iconsContainer');
+            
+            // Cantidades por categoría (sumando 100)
+            const years02Count = 25;      // Hasta 2 años
+            const years34Count = 18;      // 3-4 años  
+            const years59Count = 26;      // 5-9 años
+            const years1019Count = 27;    // 10-19 años
+            const years2029Count = 2;     // 20-29 años
+            const years30PlusCount = 1;   // 30+ años
+            const noMovementCount = 1;    // Sin Movimiento
+            
+            const totalCols = 20;
+            const totalRows = 5;
+            
+            // Crear un array bidimensional para organizar por columnas
+            const grid = [];
+            for (let col = 0; col < totalCols; col++) {
+                grid[col] = [];
+                for (let row = 0; row < totalRows; row++) {
+                    grid[col][row] = null;
+                }
+            }
+            
+            // Llenar por columnas en orden
+            let currentIndex = 0;
+            
+            // Llenar hasta 2 años
+            for (let i = 0; i < years02Count; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-0-2';
+                currentIndex++;
+            }
+            
+            // Llenar 3-4 años
+            for (let i = 0; i < years34Count; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-3-4';
+                currentIndex++;
+            }
+            
+            // Llenar 5-9 años
+            for (let i = 0; i < years59Count; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-5-9';
+                currentIndex++;
+            }
+            
+            // Llenar 10-19 años
+            for (let i = 0; i < years1019Count; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-10-19';
+                currentIndex++;
+            }
+            
+            // Llenar 20-29 años
+            for (let i = 0; i < years2029Count; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-20-29';
+                currentIndex++;
+            }
+            
+            // Llenar 30+ años
+            for (let i = 0; i < years30PlusCount; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'years-30-plus';
+                currentIndex++;
+            }
+            
+            // Llenar sin movimiento
+            for (let i = 0; i < noMovementCount; i++) {
+                const col = Math.floor(currentIndex / totalRows);
+                const row = currentIndex % totalRows;
+                grid[col][row] = 'no-movement';
+                currentIndex++;
+            }
+            
+            // Crear los elementos DOM en orden de fila
+            for (let row = 0; row < totalRows; row++) {
+                for (let col = 0; col < totalCols; col++) {
+                    const type = grid[col][row];
+                    const baptismIcon = document.createElement('div');
+                    baptismIcon.className = `baptism-icon ${type}`;
+                    baptismIcon.innerHTML = personIconSVG;
+                    
+                    const baptismLabels = {
+                        'years-0-2': 'Recién bautizado',
+                        'years-3-4': 'Nuevo creyente', 
+                        'years-5-9': 'Creyente establecido',
+                        'years-10-19': 'Creyente maduro',
+                        'years-20-29': 'Creyente veterano',
+                        'years-30-plus': 'Creyente anciano',
+                        'no-movement': 'Sin datos'
+                    };
+                    
+                    baptismIcon.title = `${baptismLabels[type]} - Col: ${col + 1}, Fila: ${row + 1}`;
+                    
+                    // Añadir animación escalonada por columnas
+                    const animationIndex = col * totalRows + row;
+                    baptismIcon.style.animationDelay = `${animationIndex * 2}ms`;
+                    
+                    container.appendChild(baptismIcon);
+                }
+            }
+        }
+        
+        // Ejecutar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', generateBaptismIcons);
+        
+        // Añadir CSS para animación de entrada
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes iconAppear {
+                from {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            
+            .baptism-icon {
+                animation: iconAppear 0.3s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
